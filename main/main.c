@@ -11,9 +11,6 @@ const int ECHO_PIN = 16;
 const int TRIGGER_PIN = 17;
 const int TRIGGER_PULSE_US = 10;
 
-volatile absolute_time_t echo_start_time = 0;
-volatile absolute_time_t echo_end_time = 0;
-
 QueueHandle_t xQueueTime;
 QueueHandle_t xQueueDistance;
 SemaphoreHandle_t xSemaphoreTrigger;
@@ -21,9 +18,9 @@ SemaphoreHandle_t xSemaphoreTrigger;
 void echo_pin_callback(uint gpio, uint32_t events) {
     if (gpio == ECHO_PIN) {
         if (events & GPIO_IRQ_EDGE_RISE) {
-            echo_start_time = to_us_since_boot(get_absolute_time());
+            absolute_time_t echo_start_time = to_us_since_boot(get_absolute_time());
         } else if (events & GPIO_IRQ_EDGE_FALL) {
-            echo_end_time = to_us_since_boot(get_absolute_time());
+            absolute_time_t echo_end_time = to_us_since_boot(get_absolute_time());
             absolute_time_t echo_time = absolute_time_diff_us(echo_start_time, echo_end_time);
 
             xSemaphoreGiveFromISR(xSemaphoreTrigger, NULL);
