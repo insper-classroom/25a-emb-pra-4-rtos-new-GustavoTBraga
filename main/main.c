@@ -11,9 +11,6 @@ const int ECHO_PIN = 16;
 const int TRIGGER_PIN = 17;
 const int TRIGGER_PULSE_US = 10;
 
-bool start = true;
-
-absolute_time_t echo_time = 0;
 volatile absolute_time_t echo_start_time = 0;
 volatile absolute_time_t echo_end_time = 0;
 
@@ -27,7 +24,7 @@ void echo_pin_callback(uint gpio, uint32_t events) {
             echo_start_time = to_us_since_boot(get_absolute_time());
         } else if (events & GPIO_IRQ_EDGE_FALL) {
             echo_end_time = to_us_since_boot(get_absolute_time());
-            echo_time = absolute_time_diff_us(echo_start_time, echo_end_time);
+            absolute_time_t echo_time = absolute_time_diff_us(echo_start_time, echo_end_time);
 
             xSemaphoreGiveFromISR(xSemaphoreTrigger, NULL);
             xQueueSendFromISR(xQueueTime, &echo_time, NULL);
@@ -38,7 +35,7 @@ void echo_pin_callback(uint gpio, uint32_t events) {
 void trigger_task(void *p) {
     while (true) {
         gpio_put(TRIGGER_PIN, 1);
-        sleep_us(TRIGGER_PULSE_US);
+        vTaskDelay(pdMS_TO_TICKS(TRIGGER_PULSE_US/1000));
         gpio_put(TRIGGER_PIN, 0);
         vTaskDelay(pdMS_TO_TICKS(100));
     }
@@ -51,7 +48,6 @@ void echo_task(void *p) {
         if (xQueueReceive(xQueueTime, &received_echo_time, 0)) {
             distancia = (received_echo_time * 0.0343) / 2.0;
             xQueueSend(xQueueDistance, &distancia, 0);
-            start = true;
         }
     }
 }
