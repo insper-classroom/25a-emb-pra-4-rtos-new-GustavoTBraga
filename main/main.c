@@ -9,10 +9,11 @@
 
 const int ECHO_PIN = 16;
 const int TRIGGER_PIN = 17;
+
 const int TRIGGER_PULSE_US = 10;
 
-volatile absolute_time_t echo_start_time;
-volatile absolute_time_t echo_end_time;
+volatile absolute_time_t echo_start_time = 0;
+volatile absolute_time_t echo_end_time = 0;
 
 QueueHandle_t xQueueTime;
 QueueHandle_t xQueueDistance;
