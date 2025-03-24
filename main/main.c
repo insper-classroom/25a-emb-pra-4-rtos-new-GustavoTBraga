@@ -78,6 +78,10 @@ void oled_task(void *p) {
     
                 gfx_show(&disp);
             }
+        } else {
+            gfx_clear_buffer(&disp);
+            gfx_draw_string(&disp, 0, 0, 1, "Falha");
+            gfx_show(&disp);
         }
     }
 }
@@ -222,4 +226,5 @@ int main() {
     
 //     while (true)
 //     ;
-// }
+// } */
+
